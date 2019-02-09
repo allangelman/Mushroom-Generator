@@ -4,4 +4,4 @@ This is a tool made with Maya Python scripting to generate low-poly mushrooms. T
 
 Here is a video of the tool in action: 
 
-![mushrooms](./image/mushroom)
+![mushrooms](./image/mushroom.png)
