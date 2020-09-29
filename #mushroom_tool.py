@@ -18,9 +18,7 @@ def adjustStemRadius(sliderRadius, *args, **kwargs):
     """
     
     valRadius = cmds.floatSliderGrp(sliderRadius, q=True, value=True)
-    stemls = cmds.ls('stem*', long=True)
-    print(stemls)
-    stemName = stemls[len(stemls)-1]
+    stemName = getName("stem")
     cmds.select(stemName, r=True)
     cmds.polyCylinder(stemName, edit=True, r=valRadius, **kwargs)  
 
@@ -32,15 +30,13 @@ def adjustStemHeight(sliderHeight, *args, **kwargs):
     """
     
     valHeight = cmds.floatSliderGrp(sliderHeight, q=True, value=True)
-    stemls = cmds.ls('stem*', long=True)
-    stemName = stemls[len(stemls)-1][1:6]
+    stemName = getName("stem")
     cmds.select(stemName, r=True)
     cmds.polyCylinder(stemName, edit=True, h=valHeight, **kwargs) 
     cmds.move(0, valHeight/2, 0, stemName)
     
     #adjusting the cap height based on the new stem height
-    capls = cmds.ls('cap*', long=True)
-    capName = capls[len(capls)-1][1:5]
+    capName = getName("cap")
     cmds.move(0, valHeight, 0, capName)     
 
 def stemSubX(sliderX, *args, **kwargs):
@@ -51,8 +47,7 @@ def stemSubX(sliderX, *args, **kwargs):
     """
     
     valSX = cmds.intSliderGrp(sliderX, q=True, value=True)
-    stemls = cmds.ls('stem*', long=True)
-    stemName = stemls[len(stemls)-1][1:6]
+    stemName = getName("stem")
     cmds.select(stemName, r=True)
     cmds.polyCylinder(stemName, edit=True, sx=valSX, **kwargs)     
      
@@ -64,8 +59,7 @@ def stemSubY(sliderY, *args, **kwargs):
     """
     
     valSY = cmds.intSliderGrp(sliderY, q=True, value=True)
-    stemls = cmds.ls('stem*', long=True)
-    stemName = stemls[len(stemls)-1][1:6]
+    stemName = getName("stem")
     cmds.select(stemName, r=True)
     cmds.polyCylinder(stemName, edit=True, sy=valSY, **kwargs)  
 
@@ -78,9 +72,8 @@ def adjustCapRadius(sliderRadius, *args, **kwargs):
     """
     
     valRadius = cmds.floatSliderGrp(sliderRadius, q=True, value=True)
-    capls = cmds.ls('cap*', long=True)
-    capName = capls[len(capls)-1][1:5]
-    capNumber = capls[len(capls)-1][4]
+    capName = getName("cap")
+    capNumber = getNumStr("cap")
     cmds.select(capName, r=True)
     cmds.setAttr('polySphere' + capNumber+ '.radius', valRadius, **kwargs)  
 
@@ -91,8 +84,7 @@ def capSubX(sliderX, *args, **kwargs):
     Adjusts the subdivisions x of the cap based on the slider value
     """
     
-    capls = cmds.ls('cap*', long=True)
-    capName = capls[len(capls)-1][1:5]
+    capName = getName("cap")
     cmds.delete(capName)
     cap()    
      
@@ -103,8 +95,7 @@ def capSubY(sliderY, *args, **kwargs):
     Adjusts the subdivisions y of the cap based on the slider value
     """
     
-    capls = cmds.ls('cap*', long=True)
-    capName = capls[len(capls)-1][1:5]
+    capName = getName("cap")
     cmds.delete(capName)
     cap()
 
@@ -116,8 +107,7 @@ def capScaleY(sliderScaleY, *args, **kwargs):
     """
     
     valScaleY = cmds.floatSliderGrp(sliderScaleY, q=True, value=True)
-    capls = cmds.ls('cap*', long=True)
-    capName = capls[len(capls)-1][1:5]
+    capName = getName("cap")
     cmds.select(capName, r=True)
     cmds.setAttr(capName + '.scaleY', valScaleY, **kwargs)  
                          
@@ -138,7 +128,7 @@ cmds.intSliderGrp(stemSubY_Slider, e=True, dc = partial(stemSubY, stemSubY_Slide
 capRadius_Slider = cmds.floatSliderGrp(label='Cap Radius', columnAlign= (1,'right'), field=True, min=0.5, max=3, value=0, step=0.1, dc = 'empty')
 cmds.floatSliderGrp(capRadius_Slider,  e=True, dc = partial(adjustCapRadius, capRadius_Slider))
 
-capSubX_Slider = cmds.intSliderGrp(label='Cap Density', columnAlign= (1,'right'), field=True, min=5, max=20, value=5, step=1, dc = 'empty')
+capSubX_Slider = cmds.intSliderGrp(label='Cap Density', columnAlign= (1,'right'), field=True, min=3, max=20, value=3, step=1, dc = 'empty')
 cmds.intSliderGrp(capSubX_Slider, e=True, dc = partial(capSubX, capSubX_Slider))
 
 capSubY_Slider = cmds.intSliderGrp(label='Cap Sections', columnAlign= (1,'right'), field=True, min=4, max=20, value=4, step=1, dc = 'empty')
@@ -196,36 +186,41 @@ def cap():
     if capSubY%2 == 1:
         capSubY = capSubY + 1
     
-    finalCap = cmds.polySphere(n='cap#', r=capRadius, sx=capSubX, sy=capSubY, ch=True)
+    #quadedSphere() does this calculation, so it needs to be repeated here so the numbers align 
+    if capSubX%2 == 1:
+        capSubX = capSubX + 1
+    
+    finalCap = quadedSphere('cap#', capRadius, capSubX, capSubY)
     
     #making a polySphere into a semi-polySphere
-    term = capSubX * ((capSubY-2)/2)
+    total_faces = capSubX * (capSubY-1)
+    print(total_faces)
     
     #selecting the end and start of the facets to delete
     delStarta = 0
-    delEnda = term - 1 
-    delStartb = 0
-    delEndb = 0
+    delEnda = capSubX * ((capSubY/2)-1) - 1
     
-    delStartb = term * 2
-    delEndb = term * 2 + (capSubX - 1)
+    delStartb = total_faces - capSubX
+    delEndb = delStartb + (capSubX/2) - 1
+    print(delStartb)
+    print(delEndb)
+    
         
     delStarta = int(delStarta)
     delEnda = int(delEnda)
     delStartb = int(delStartb)
     delEndb = int(delEndb)
     
-    capls = cmds.ls('cap*', long=True)
-    capName = capls[len(capls)-1][1:5]
+    capName = getName("cap")
     
-    stemls = cmds.ls('stem*', long=True)
-    stemName = stemls[len(stemls)-1][1:6]
+    stemName = getName("stem")
   
     #deleting half of the polySphere to make a semi-polySphere mushroom cap
     cmds.delete(capName +  '.f[' + str(delStarta) + ':' +  str(delEnda)+ ']', capName + '.f[' + str(delStartb) + ':' +  str(delEndb)+ ']')
-    cmds.select(capName + '.e[0]', r=True)
-    cmds.polyCloseBorder() 
-    cmds.select(capName, r=True)
+    #cmds.select(capName + '.e[0]', r=True)
+    #cmds.polyExtrudeEdge( capName + '.e[0]', kft=True, ltz=2, ls=(.5, .5, 0) )
+    #cmds.polyCloseBorder() 
+    #cmds.select(capName, r=True)
     
     #moving cap to form a mushroom!
     cmds.move(0, stemHieght, 0, capName)
@@ -238,5 +233,54 @@ def cap():
     #mushroomls = cmds.ls('mushroom*', long=True)
     #mushroomName = mushroomls[len(mushroomls)-1][1:9]
     #cmds.parent(capName, mushroomName)  
+    
+def quadedSphere(name, radius, subx, suby):
+    sphereRadius = radius
+    sphereSubX = subx
+    sphereSubY = suby
+    
+    #forcing capSubX to always be even because polySpheres with an odd # of SubdivisionsX can't be quaded with this method of deleting edges
+    if sphereSubX%2 == 1:
+        sphereSubX = sphereSubX + 1
+    
+    #calculating the start and end edges to delete
+    totalEdges = sphereSubX*(2*sphereSubY-1)-1  
+    startEdgesDelete = totalEdges - ((sphereSubX-1)*2)
+    
+    #creating sphere
+    sphere = cmds.polySphere(n=name, r=sphereRadius, sx=sphereSubX, sy=sphereSubY, ch=True)
+    sphereName = getName("cap")
+    
+    #iterating over the edges to delete and filling the edgeDeleteList
+    edgeDeleteList = []
+    for edgeNum in range(startEdgesDelete, totalEdges+1, 2): 
+        edgeString = sphereName + '.e[' + str(edgeNum) + ']'
+        edgeDeleteList.append(edgeString)
+    cmds.delete(edgeDeleteList)
+    
+def getName(objPrefix):
+    """
+    objPrefix: string prefix of object
+    
+    Returns full name of object
+    """
+    
+    objNumberStr = getNumStr(objPrefix)
+    objName = objPrefix + objNumberStr
+    
+    return objName
+    
+def getNumStr(objPrefix):
+    """
+    objPrefix: string prefix of object
+    
+    Returns instance number of object
+    """
+    
+    objls = cmds.ls(objPrefix + '*', long=True)
+    objNumber = len(objls)/2
+    objNumberStr = str(objNumber)
+    
+    return objNumberStr
    
    
