@@ -204,7 +204,6 @@ def cap():
     delEndb = delStartb + (capSubX/2) - 1
     print(delStartb)
     print(delEndb)
-    
         
     delStarta = int(delStarta)
     delEnda = int(delEnda)
@@ -212,15 +211,41 @@ def cap():
     delEndb = int(delEndb)
     
     capName = getName("cap")
-    
     stemName = getName("stem")
   
     #deleting half of the polySphere to make a semi-polySphere mushroom cap
     cmds.delete(capName +  '.f[' + str(delStarta) + ':' +  str(delEnda)+ ']', capName + '.f[' + str(delStartb) + ':' +  str(delEndb)+ ']')
-    #cmds.select(capName + '.e[0]', r=True)
-    #cmds.polyExtrudeEdge( capName + '.e[0]', kft=True, ltz=2, ls=(.5, .5, 0) )
-    #cmds.polyCloseBorder() 
-    #cmds.select(capName, r=True)
+    
+    #extruding the bottom edge of cap
+    cmds.polyExtrudeEdge( capName + '.e[0:' + str((capSubX-1)) + ']', kft=True, ltz=0, ls=(0, 0, 0) )
+    
+    #extruding the extruded edge 
+    totalEdges = capSubX*(capSubY+1) + (capSubX/2)
+    startExtrudeEdge = totalEdges - ((capSubX*2)-2)
+    edgeExtrudeList = []
+    for edgeNum in range(startExtrudeEdge, totalEdges, 2): 
+        edgeString = capName + '.e[' + str(edgeNum) + ']'
+        edgeExtrudeList.append(edgeString)
+    lastEdgeString = capName + '.e[' + str(totalEdges-1) + ']'
+    edgeExtrudeList.append(lastEdgeString)
+    cmds.polyExtrudeEdge( edgeExtrudeList, kft=True, ltz=0, ls=(0, 0, 0) )
+    
+    
+    vertexNum = capSubX*((capSubY/2) + 2) + 1
+    vertexStart = vertexNum - capSubX
+    cmds.select(capName + '.vtx[' + str(vertexStart) + ':' + str(vertexNum) + ']', r=True)
+    cmds.polyMergeVertex( d=100 )
+    
+    
+    totalEdgesAfterMerge = capSubX*(capSubY+2) + (capSubX/2)
+    startDeleteEdgeAfterMerge = totalEdgesAfterMerge - (capSubX - 1)
+    edgeDeleteListAfterMerge = []
+    for edgeNum in range(startDeleteEdgeAfterMerge, totalEdgesAfterMerge, 2): 
+        edgeString = capName + '.e[' + str(edgeNum) + ']'
+        edgeDeleteListAfterMerge.append(edgeString)
+    
+    cmds.delete(edgeDeleteListAfterMerge)
+    cmds.select(capName, r=True)
     
     #moving cap to form a mushroom!
     cmds.move(0, stemHieght, 0, capName)
