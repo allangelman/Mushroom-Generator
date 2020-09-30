@@ -112,20 +112,20 @@ def capScaleY(sliderScaleY, *args, **kwargs):
     cmds.setAttr(capName + '.scaleY', valScaleY, **kwargs)  
                          
 #Sliders Stem
-stemRadius_Slider = cmds.floatSliderGrp(label='Stem Radius', columnAlign= (1,'right'), field=True, min=0.3, max=3, value=0, step=0.1, dc = 'empty')
+stemRadius_Slider = cmds.floatSliderGrp(label='Stem Radius', columnAlign= (1,'right'), field=True, min=2, max=20, value=0, step=0.1, dc = 'empty')
 cmds.floatSliderGrp(stemRadius_Slider,  e=True, dc = partial(adjustStemRadius, stemRadius_Slider))
 
-stemHieght_Slider = cmds.floatSliderGrp(label='Stem Height', columnAlign= (1,'right'), field=True, min=1, max=3, value=0, step=0.1, dc = 'empty')
+stemHieght_Slider = cmds.floatSliderGrp(label='Stem Height', columnAlign= (1,'right'), field=True, min=7, max=20, value=0, step=0.1, dc = 'empty')
 cmds.floatSliderGrp(stemHieght_Slider, e=True, dc = partial(adjustStemHeight, stemHieght_Slider))
 
-stemSubX_Slider = cmds.intSliderGrp(label='Stem Density', columnAlign= (1,'right'), field=True, min=5, max=20, value=0, step=1, dc = 'empty')
+stemSubX_Slider = cmds.intSliderGrp(label='Stem Density', columnAlign= (1,'right'), field=True, min=4, max=20, value=0, step=1, dc = 'empty')
 cmds.intSliderGrp(stemSubX_Slider, e=True, dc = partial(stemSubX, stemSubX_Slider))
 
-stemSubY_Slider = cmds.intSliderGrp(label='Stem Sections', columnAlign= (1,'right'), field=True, min=5, max=20, value=0, step=1, dc = 'empty')
+stemSubY_Slider = cmds.intSliderGrp(label='Stem Sections', columnAlign= (1,'right'), field=True, min=3, max=20, value=0, step=1, dc = 'empty')
 cmds.intSliderGrp(stemSubY_Slider, e=True, dc = partial(stemSubY, stemSubY_Slider))
 
 #Sliders Cap
-capRadius_Slider = cmds.floatSliderGrp(label='Cap Radius', columnAlign= (1,'right'), field=True, min=0.5, max=3, value=0, step=0.1, dc = 'empty')
+capRadius_Slider = cmds.floatSliderGrp(label='Cap Radius', columnAlign= (1,'right'), field=True, min=7, max=20, value=0, step=0.1, dc = 'empty')
 cmds.floatSliderGrp(capRadius_Slider,  e=True, dc = partial(adjustCapRadius, capRadius_Slider))
 
 capSubX_Slider = cmds.intSliderGrp(label='Cap Density', columnAlign= (1,'right'), field=True, min=3, max=20, value=3, step=1, dc = 'empty')
