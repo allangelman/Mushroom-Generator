@@ -169,8 +169,8 @@ def mushroom():
     capName = getName("cap")
     
     #adding to group
-    cmds.parent(stemName, mushroom) 
-    cmds.parent(capName, mushroom)  
+    #cmds.parent(stemName, mushroom) 
+    #cmds.parent(capName, mushroom)  
     
 def stem():
     """
@@ -194,7 +194,6 @@ def stem():
     cmds.delete(stemName + '.f[' + str(startDeleteFace) + ':' + str(endDeleteFace) + ']')
     
     mushroomName = getGroupName("mushroom")
-    print(mushroomName)
     cmds.parent(stemName, mushroomName) 
     
 def cap():
@@ -219,7 +218,6 @@ def cap():
     
     #making a polySphere into a semi-polySphere
     total_faces = capSubX * (capSubY-1)
-    print(total_faces)
     
     #selecting the end and start of the facets to delete
     delStarta = 0
@@ -227,8 +225,6 @@ def cap():
     
     delStartb = total_faces - capSubX
     delEndb = delStartb + (capSubX/2) - 1
-    print(delStartb)
-    print(delEndb)
         
     delStarta = int(delStarta)
     delEnda = int(delEnda)
