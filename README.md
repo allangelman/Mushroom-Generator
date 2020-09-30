@@ -1,7 +1,5 @@
-# 🍄Mushroom Generator
+# 🍄 Mushroom Generator
 
-This is a tool made with Maya Python scripting to generate low-poly mushrooms. The user can adjust parameters of their mushroom including: stem height, stem radius, number of stem subdivisions in X and Y, cap radius, number of cap subdivisions in X and Y, and scaling of the cap in Y.
+I created a tool that procedurally generates mushrooms using python scripting in Maya. The user can adjust the height and radius of the mushroom stem, the radius and compression of the mushroom cap. The user can also adjust the subdivisions of both the cap and stem, and the mushroom will remain quaded. Code from my Quaded Sphere tool was used in this tool.
 
-[My tool in action!](https://www.youtube.com/watch?v=DfI4s8LvO-U)
-
-![mushrooms](./Image/mushroom.png)
+![mushrooms](./Image/final.gif)
