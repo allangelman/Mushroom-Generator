@@ -155,16 +155,22 @@ def mushroom():
     capRadius = cmds.floatSliderGrp(capRadius_Slider, q=True, value=True)
     capSubX = cmds.intSliderGrp(capSubX_Slider, q=True, value=True)
     capSubY = cmds.intSliderGrp(capSubY_Slider, q=True, value=True)
-   
+    
+    #making group
+    mushroom = cmds.group(empty = True, name ="mushroom#")
+    
     #making stem of mushroom 
     stem()
     
-    #creating a group and adding the stem to it
-    #mushroom = cmds.group(empty = True, name ="mushroom#")
-    #cmds.parent(stemName, mushroom) 
-    
     #making cap of mushroom 
     cap()
+    
+    stemName = getName("stem")
+    capName = getName("cap")
+    
+    #adding to group
+    cmds.parent(stemName, mushroom) 
+    cmds.parent(capName, mushroom)  
     
 def stem():
     """
@@ -186,6 +192,10 @@ def stem():
     startDeleteFace = stemSubX*stemSubY
     endDeleteFace = startDeleteFace + 2
     cmds.delete(stemName + '.f[' + str(startDeleteFace) + ':' + str(endDeleteFace) + ']')
+    
+    mushroomName = getGroupName("mushroom")
+    print(mushroomName)
+    cmds.parent(stemName, mushroomName) 
     
 def cap():
     """
@@ -268,10 +278,8 @@ def cap():
     cmds.select(capName, r=True)
     cmds.setAttr(capName + '.scaleY', capScaleY) 
     
-    #adding the cap to the mushroom group
-    #mushroomls = cmds.ls('mushroom*', long=True)
-    #mushroomName = mushroomls[len(mushroomls)-1][1:9]
-    #cmds.parent(capName, mushroomName)  
+    mushroomName = getGroupName("mushroom")
+    cmds.parent(capName, mushroomName) 
     
 def quadedSphere(name, radius, subx, suby):
     sphereRadius = radius
@@ -318,6 +326,31 @@ def getNumStr(objPrefix):
     
     objls = cmds.ls(objPrefix + '*', long=True)
     objNumber = len(objls)/2
+    objNumberStr = str(objNumber)
+    
+    return objNumberStr
+    
+def getGroupName(objPrefix):
+    """
+    objPrefix: string prefix of object
+    
+    Returns full name of object
+    """
+    
+    objNumberStr = getGroupNumStr(objPrefix)
+    objName = objPrefix + objNumberStr
+    
+    return objName
+    
+def getGroupNumStr(objPrefix):
+    """
+    objPrefix: string prefix of object
+    
+    Returns instance number of object
+    """
+    
+    objls = cmds.ls(objPrefix + '*', long=True)
+    objNumber = len(objls)
     objNumberStr = str(objNumber)
     
     return objNumberStr
