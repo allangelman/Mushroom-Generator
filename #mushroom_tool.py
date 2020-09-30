@@ -19,8 +19,9 @@ def adjustStemRadius(sliderRadius, *args, **kwargs):
     
     valRadius = cmds.floatSliderGrp(sliderRadius, q=True, value=True)
     stemName = getName("stem")
+    stemNum = getNumStr("stem")
     cmds.select(stemName, r=True)
-    cmds.polyCylinder(stemName, edit=True, r=valRadius, **kwargs)  
+    cmds.setAttr('polyCylinder' + stemNum + '.radius', valRadius, **kwargs)  
 
 def adjustStemHeight(sliderHeight, *args, **kwargs):
     """
@@ -31,8 +32,9 @@ def adjustStemHeight(sliderHeight, *args, **kwargs):
     
     valHeight = cmds.floatSliderGrp(sliderHeight, q=True, value=True)
     stemName = getName("stem")
+    stemNum = getNumStr("stem")
     cmds.select(stemName, r=True)
-    cmds.polyCylinder(stemName, edit=True, h=valHeight, **kwargs) 
+    cmds.setAttr('polyCylinder' + stemNum + '.height', valHeight, **kwargs)  
     cmds.move(0, valHeight/2, 0, stemName)
     
     #adjusting the cap height based on the new stem height
@@ -46,10 +48,9 @@ def stemSubX(sliderX, *args, **kwargs):
     Adjusts the subdivisions x of the stem based on the slider value
     """
     
-    valSX = cmds.intSliderGrp(sliderX, q=True, value=True)
     stemName = getName("stem")
-    cmds.select(stemName, r=True)
-    cmds.polyCylinder(stemName, edit=True, sx=valSX, **kwargs)     
+    cmds.delete(stemName)
+    stem()   
      
 def stemSubY(sliderY, *args, **kwargs):
     """
@@ -58,10 +59,9 @@ def stemSubY(sliderY, *args, **kwargs):
     Adjusts the subdivisions y of the stem based on the slider value
     """
     
-    valSY = cmds.intSliderGrp(sliderY, q=True, value=True)
     stemName = getName("stem")
-    cmds.select(stemName, r=True)
-    cmds.polyCylinder(stemName, edit=True, sy=valSY, **kwargs)  
+    cmds.delete(stemName)
+    stem()     
 
 #Cap Funcations
 def adjustCapRadius(sliderRadius, *args, **kwargs):
@@ -157,12 +157,7 @@ def mushroom():
     capSubY = cmds.intSliderGrp(capSubY_Slider, q=True, value=True)
    
     #making stem of mushroom 
-    finalStem = cmds.polyCylinder(n='stem#', r=stemRadius, h=stemHieght, sx=stemSubX, sy=stemSubY)
-    
-    #moving stem
-    stemls = cmds.ls('stem*', long=True)
-    stemName = stemls[len(stemls)-1][1:6]
-    cmds.move(0, stemHieght/2, 0, stemName)
+    stem()
     
     #creating a group and adding the stem to it
     #mushroom = cmds.group(empty = True, name ="mushroom#")
@@ -170,7 +165,27 @@ def mushroom():
     
     #making cap of mushroom 
     cap()
-     
+    
+def stem():
+    """
+    Constructing the stem of the mushroom model based on user input on a variety of parameters. Also called when stem parameters are updated.
+    """
+    
+    stemRadius = cmds.floatSliderGrp(stemRadius_Slider, q=True, value=True)
+    stemHieght = cmds.floatSliderGrp(stemHieght_Slider, q=True, value=True)
+    stemSubX = cmds.intSliderGrp(stemSubX_Slider, q=True, value=True)
+    stemSubY = cmds.intSliderGrp(stemSubY_Slider, q=True, value=True)
+    
+    #making stem of mushroom 
+    finalStem = cmds.polyCylinder(n='stem#', r=stemRadius, h=stemHieght, sx=stemSubX, sy=stemSubY)
+    
+    #moving stem
+    stemName = getName("stem")
+    cmds.move(0, stemHieght/2, 0, stemName)
+    
+    startDeleteFace = stemSubX*stemSubY
+    endDeleteFace = startDeleteFace + 2
+    cmds.delete(stemName + '.f[' + str(startDeleteFace) + ':' + str(endDeleteFace) + ']')
     
 def cap():
     """
@@ -230,20 +245,19 @@ def cap():
     edgeExtrudeList.append(lastEdgeString)
     cmds.polyExtrudeEdge( edgeExtrudeList, kft=True, ltz=0, ls=(0, 0, 0) )
     
-    
+    #Merging vertices to center
     vertexNum = capSubX*((capSubY/2) + 2) + 1
     vertexStart = vertexNum - capSubX
     cmds.select(capName + '.vtx[' + str(vertexStart) + ':' + str(vertexNum) + ']', r=True)
     cmds.polyMergeVertex( d=100 )
     
-    
+    #deleting excess edges to make the bottom face of cap quaded
     totalEdgesAfterMerge = capSubX*(capSubY+2) + (capSubX/2)
     startDeleteEdgeAfterMerge = totalEdgesAfterMerge - (capSubX - 1)
     edgeDeleteListAfterMerge = []
     for edgeNum in range(startDeleteEdgeAfterMerge, totalEdgesAfterMerge, 2): 
         edgeString = capName + '.e[' + str(edgeNum) + ']'
         edgeDeleteListAfterMerge.append(edgeString)
-    
     cmds.delete(edgeDeleteListAfterMerge)
     cmds.select(capName, r=True)
     
